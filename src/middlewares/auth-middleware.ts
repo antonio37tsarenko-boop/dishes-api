@@ -1,6 +1,7 @@
-import type { IMiddleware } from './middleware-interface';
+import type { IMiddleware } from './middleware-interface.js';
 import type { Request, Response, NextFunction } from 'express';
-import { type JwtPayload, verify } from 'jsonwebtoken';
+import * as pkg from 'jsonwebtoken';
+const { verify } = pkg;
 
 export class AuthMiddleware implements IMiddleware {
     secret: string;
@@ -15,17 +16,14 @@ export class AuthMiddleware implements IMiddleware {
             verify(
                 authHeader.split(' ')[1] as string,
                 this.secret,
-                (err, payload) => {
-                    if (err) {
-                        next();
-                    } else if (payload) {
-                        const _payload = payload as JwtPayload;
-                        req.user = _payload.email;
+                (err, payload: any) => {
+                    if (typeof payload !== 'undefined') {
+                        req.user = payload.email;
                         next();
                     }
                 },
             );
+            next();
         }
-        next();
     }
 }

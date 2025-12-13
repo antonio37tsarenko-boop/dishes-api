@@ -6,5 +6,6 @@ namespace NodeJS {
         DATABASE_PORT: number;
         DATABASE_HOST: string;
         SECRET: string;
+        REDIS_PORT: number;
     }
 }

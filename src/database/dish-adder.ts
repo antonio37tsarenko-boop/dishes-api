@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import type { RowDataPacket } from 'mysql2/promise';
-import { DatabaseError } from '../errors/DatabaseError.js';
+import { DatabaseError } from '../errors/database-error.js';
 
 interface IDishId extends RowDataPacket {
     dish_id: number;
