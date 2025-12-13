@@ -1,0 +1,34 @@
+{
+  "name": "recipes-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && ts-node ./dist/index.js",
+    "dev": "tsc && nodemon ./dist/index.js",
+    "test": "tsc && nodemon ./dist/test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.5",
+    "@types/nodemailer": "^7.0.4",
+    "axios": "^1.13.2",
+    "cloudmailin": "^0.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "ioredis": "^5.8.2",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.15.3",
+    "nodemailer": "^7.0.11",
+    "ts-node": "^10.9.2"
+  }
+}
