@@ -1,6 +1,6 @@
 import { sign } from 'jsonwebtoken';
 
-export class JWTController {
+export class JwtService {
     signJWT(email: string, secret: string): Promise<string> {
         return new Promise<string>((res, rej) => {
             sign(

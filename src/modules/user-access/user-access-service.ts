@@ -1,19 +1,23 @@
 import { type Transporter } from 'nodemailer';
 import * as crypto from 'node:crypto';
-import type { UsersDatabaseController } from '../database/users-database-controller.js';
-import type { Hasher } from '../security/hasher.js';
-import type { RedisController } from '../redis/redis-controller.js';
+import type { UsersDatabaseController } from '../../temporary/database/users-database-controller';
+import type { Hasher } from '../../security/hasher';
+import type { RedisService } from '../redis/redis-service';
+import type { Request, Response, NextFunction } from 'express';
+import { checkCorrectnessOfBody } from '../../utils/checkCorrectnessOfBody';
 
-export class UserAccessController {
-    transport: Transporter<any>;
+export class UserAccessService {
+    transport: Transporter;
 
-    redisController: RedisController;
+    redisService: RedisService;
     usersDatabaseController: UsersDatabaseController;
     hasher: Hasher;
 
-    async verifyOTP(OTP: number, email: string) {
-        const data = await this.redisController.getAllHash(`verify:${email}`);
-        console.log(data, 'this is data from verify', Number(data.OTP), OTP);
+    async verifyOTP(req: Request, res: Response, next: NextFunction) {
+        const body = req.body;
+        checkCorrectnessOfBody(body, ['email', 'OTP']);
+        const { email, OTP } = body;
+        const data = await this.redisService.getAllHash(`verify:${email}`);
         if (
             typeof data.hashedPassword == 'string' &&
             typeof data.firstName == 'string' &&
@@ -26,28 +30,32 @@ export class UserAccessController {
                 data.firstName,
                 data.lastName,
             );
-            await this.redisController.deleteKey(`verify:${email}`);
+            await this.redisService.deleteKey(`verify:${email}`);
             return true;
         } else return false;
     }
 
-    async sendOTP(
-        email: string,
-        password: string,
-        firstName: string,
-        lastName: string,
-    ) {
+    async sendOTP(req: Request, res: Response, next: NextFunction) {
+        const body = req.body;
+        checkCorrectnessOfBody(body, [
+            'email',
+            'hashedPassword',
+            'firstName',
+            'lastName',
+        ]);
+        const { email, password, firstName, lastName } = body;
+
         const OTP = this.generateOTP();
         const hashedPassword = this.hasher.hashPassword(password);
-        await this.sendOTPMail(OTP, email, 'Your OTP');
-        const redisInfo = await this.redisController.saveUserData(
+        await this.redisService.saveUserData(
             email,
             hashedPassword,
             firstName,
             lastName,
             Number(OTP),
         );
-        console.log(redisInfo, 'this is redis info from send');
+        await this.sendOTPMail(OTP, email, 'Your OTP');
+        res.send('mail is sent successfully.');
     }
 
     async sendOTPMail(
@@ -69,7 +77,11 @@ export class UserAccessController {
         return crypto.randomInt(100000, 1000000).toString();
     }
 
-    async login(email: string, password: string) {
+    async login(req: Request, res: Response, next: NextFunction) {
+        const body = req.body;
+        checkCorrectnessOfBody(body, ['email', 'password']);
+        const { email, password } = body;
+
         const hashedPassword = this.hasher.hashPassword(password);
         const truthfulHashedPassword =
             await this.usersDatabaseController.getHashedPassword(email);

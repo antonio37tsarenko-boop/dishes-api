@@ -4,14 +4,14 @@ import express, {
     type Request,
     type Response,
 } from 'express';
-import { DatabaseService } from './database/database-service.js';
-import { AuthMiddleware } from './middlewares/auth-middleware.js';
-import type { DishAdder } from './database/dish-adder.js';
-import type { UserAccessController } from './user-access/user-access-controller.js';
+import { DatabaseService } from './temporary/database/database-service.js';
+import { AuthMiddleware } from './middlewares/auth-middleware/auth-middleware';
+import type { DishAdder } from './temporary/database/dish-adder.js';
+import type { UserAccessController } from './modules/user-access/user-access-service!!';
 import { createTransport, type Transporter } from 'nodemailer';
-import type { RedisController } from './redis/redis-controller.js';
+import type { RedisService } from './modules/redis/redis-service';
 import type { Hasher } from './security/hasher.js';
-import type { UsersDatabaseController } from './database/users-database-controller';
+import type { UsersDatabaseController } from './temporary/database/users-database-controller';
 
 export class App {
     app: Express;
@@ -21,7 +21,7 @@ export class App {
     authMiddleware: AuthMiddleware;
     userAccessController: UserAccessController;
     transport: Transporter<any>;
-    redisController: RedisController;
+    redisController: RedisService;
     hasher: Hasher;
     usersDatabaseController: UsersDatabaseController;
 
@@ -30,7 +30,7 @@ export class App {
         dishAdder: DishAdder,
         authMiddleware: AuthMiddleware,
         userAccessController: UserAccessController,
-        redisController: RedisController,
+        redisController: RedisService,
         hasher: Hasher,
         usersDatabaseController: UsersDatabaseController,
     ) {

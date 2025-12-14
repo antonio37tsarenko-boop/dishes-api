@@ -1,11 +1,11 @@
 import { App } from './server.js';
-import { DishAdder } from './database/dish-adder.js';
-import { DatabaseService } from './database/database-service.js';
-import { AuthMiddleware } from './middlewares/auth-middleware.js';
-import { RedisController } from './redis/redis-controller.js';
-import { UserAccessController } from './user-access/user-access-controller.js';
+import { DishAdder } from './temporary/database/dish-adder.js';
+import { DatabaseService } from './temporary/database/database-service.js';
+import { AuthMiddleware } from './middlewares/auth-middleware/auth-middleware';
+import { RedisService } from './modules/redis/redis-service';
+import { UserAccessController } from './modules/user-access/user-access-service!!';
 import { Hasher } from './security/hasher.js';
-import { UsersDatabaseController } from './database/users-database-controller.js';
+import { UsersDatabaseController } from './temporary/database/users-database-controller.js';
 
 async function bootstrap() {
     const app = new App(
@@ -13,7 +13,7 @@ async function bootstrap() {
         new DishAdder(),
         new AuthMiddleware(process.env.SECRET),
         new UserAccessController(),
-        new RedisController(),
+        new RedisService(),
         new Hasher(),
         new UsersDatabaseController(),
     );

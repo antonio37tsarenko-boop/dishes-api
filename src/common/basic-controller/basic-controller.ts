@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { IRoute } from './route-interface.js';
+import type { IRoute } from './route-interface';
 
 export class BasicController {
     router: Router;

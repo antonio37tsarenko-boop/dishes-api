@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 
-export class RedisController {
+export class RedisService {
     redis: Redis;
     constructor() {
         this.redis = new Redis({
