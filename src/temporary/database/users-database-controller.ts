@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import { DatabaseError } from '../errors/database-error.js';
+import { DatabaseError } from '../../errors/database-error';
 
 interface IHashedPasswordRow {
     hashed_password: string;

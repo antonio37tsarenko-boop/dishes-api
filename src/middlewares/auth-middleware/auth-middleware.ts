@@ -1,4 +1,4 @@
-import type { IMiddleware } from './middleware-interface.js';
+import type { IMiddleware } from './middleware-interface';
 import type { Request, Response, NextFunction } from 'express';
 import * as pkg from 'jsonwebtoken';
 const { verify } = pkg;
