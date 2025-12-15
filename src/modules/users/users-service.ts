@@ -4,13 +4,20 @@ import mysql, {
 } from 'mysql2/promise';
 import { DatabaseError } from '../../errors/database-error';
 import type { Request, Response, NextFunction } from 'express';
+import type { DatabaseService } from '../database/database-service';
 
 interface IHashedPasswordRow extends RowDataPacket {
     hashed_password: string;
 }
 
 export class UsersService {
+    databaseService: DatabaseService;
     connection: mysql.Connection;
+
+    constructor(databaseService: DatabaseService) {
+        this.databaseService = databaseService;
+        this.connection = this.databaseService.connection;
+    }
 
     async addUser(
         email: string,
@@ -50,12 +57,7 @@ export class UsersService {
         return result[0];
     }
 
-    async deleteUser(
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<boolean> {
-        const email = req.user.email;
+    async deleteUser(email: string): Promise<boolean> {
         const [result] = await this.connection.query<ResultSetHeader>(
             `
             DELETE FROM users

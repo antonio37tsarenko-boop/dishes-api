@@ -1,35 +1,28 @@
 import { BasicController } from '../../common/basic-controller/basic-controller';
 import type { UsersService } from './users-service';
-import type { UserAccessService } from './user-access-service';
+import type { Request, Response, NextFunction } from 'express';
+import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
 
 export class UsersController extends BasicController {
     usersService: UsersService;
-    userAccessService: UserAccessService;
-    constructor() {
+
+    constructor(usersService: UsersService) {
         super();
+        this.usersService = usersService;
     }
     bindUsersRoutes() {
         this.bindRoutes([
             {
                 path: '/',
                 method: 'delete',
-                function: this.usersService.deleteUser,
-            },
-            {
-                path: '/register',
-                method: 'post',
-                function: this.userAccessService.sendOTP,
-            },
-            {
-                path: '/verify',
-                method: 'post',
-                function: this.userAccessService.verifyOTP,
-            },
-            {
-                path: '/login',
-                method: 'post',
-                function: this.userAccessService.login,
+                function: this.deleteUser,
             },
         ]);
+    }
+
+    async deleteUser(req: Request, res: Response, next: NextFunction) {
+        const body = req.body;
+        checkCorrectnessOfBody(body, ['email']);
+        await this.usersService.deleteUser(body.email);
     }
 }

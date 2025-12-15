@@ -5,6 +5,11 @@ import e from 'express';
 export class DishesController extends BasicController {
     dishesService: DishesService;
 
+    constructor(dishesService: DishesService) {
+        super();
+        this.dishesService = dishesService;
+    }
+
     bindDishRoutes() {
         this.bindRoutes([
             {

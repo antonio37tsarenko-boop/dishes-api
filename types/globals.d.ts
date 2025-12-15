@@ -7,5 +7,7 @@ namespace NodeJS {
         DATABASE_HOST: string;
         SECRET: string;
         REDIS_PORT: number;
+        MAIL_USER: string;
+        MAIL_PASS: string;
     }
 }
