@@ -4,14 +4,21 @@ import { DatabaseError } from '../../errors/database-error';
 import type { NextFunction, Request, Response } from 'express';
 import { BadRequestError } from '../../errors/bad-request-error';
 import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
+import type { DatabaseService } from '../database/database-service';
 
 interface IDishId extends RowDataPacket {
     dish_id: number;
 }
 
 export class DishesService {
+    databaseService: DatabaseService;
     connection: mysql.Connection;
     dishID: number | undefined;
+
+    constructor(databaseService: DatabaseService) {
+        this.databaseService = databaseService;
+        this.connection = this.databaseService.connection;
+    }
 
     private async insertIntoDishes(
         name: string,
