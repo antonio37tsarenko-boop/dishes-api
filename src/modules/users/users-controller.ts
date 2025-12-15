@@ -1,12 +1,20 @@
 import { BasicController } from '../../common/basic-controller/basic-controller';
+import type { UsersService } from './users-service';
 import type { UserAccessService } from './user-access-service';
-import e from 'express';
 
-export class UserAccessController extends BasicController {
+export class UsersController extends BasicController {
+    usersService: UsersService;
     userAccessService: UserAccessService;
-
-    bindUserAccessRoutes() {
+    constructor() {
+        super();
+    }
+    bindUsersRoutes() {
         this.bindRoutes([
+            {
+                path: '/',
+                method: 'delete',
+                function: this.usersService.deleteUser,
+            },
             {
                 path: '/register',
                 method: 'post',

@@ -15,7 +15,7 @@ export function checkCorrectnessOfBody(body: object, requiredParams: string[]) {
         }
         requiredParamsCount += 1;
     }
-    if (requiredParamsCount < requiredParams.length + 1) {
+    if (requiredParamsCount < requiredParams.length) {
         throw new BadRequestError(
             'Not all required parameters are transferred.',
         );

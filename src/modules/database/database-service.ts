@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
-dotenv.config();
 
 export class DatabaseService {
     connection: mysql.Connection;
@@ -13,6 +12,5 @@ export class DatabaseService {
             database: process.env.DATABASE_NAME,
         });
         console.log('database is connected');
-        console.log(this.connection);
     }
 }

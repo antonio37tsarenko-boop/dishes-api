@@ -1,17 +1,17 @@
 import { type Transporter } from 'nodemailer';
 import * as crypto from 'node:crypto';
-import type { UsersDatabaseController } from '../../temporary/database/users-database-controller';
 import type { Hasher } from '../../security/hasher';
 import type { RedisService } from '../redis/redis-service';
 import type { Request, Response, NextFunction } from 'express';
-import { checkCorrectnessOfBody } from '../../utils/checkCorrectnessOfBody';
+import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
+import { UsersService } from './users-service';
+import type { JwtService } from '../jwt/jwt-service';
 
-export class UserAccessService {
+export class UserAccessService extends UsersService {
     transport: Transporter;
-
     redisService: RedisService;
-    usersDatabaseController: UsersDatabaseController;
     hasher: Hasher;
+    jwtService: JwtService;
 
     async verifyOTP(req: Request, res: Response, next: NextFunction) {
         const body = req.body;
@@ -24,14 +24,14 @@ export class UserAccessService {
             typeof data.lastName == 'string' &&
             Number(data.OTP) === OTP
         ) {
-            await this.usersDatabaseController.addUser(
+            await this.addUser(
                 email,
                 data.hashedPassword,
                 data.firstName,
                 data.lastName,
             );
             await this.redisService.deleteKey(`verify:${email}`);
-            return true;
+            return this.jwtService.signJWT(email, process.env.SECRET);
         } else return false;
     }
 
@@ -83,8 +83,9 @@ export class UserAccessService {
         const { email, password } = body;
 
         const hashedPassword = this.hasher.hashPassword(password);
-        const truthfulHashedPassword =
-            await this.usersDatabaseController.getHashedPassword(email);
-        return truthfulHashedPassword.hashed_password === hashedPassword;
+        const truthfulHashedPassword = await this.getHashedPassword(email);
+        if (truthfulHashedPassword.hashed_password === hashedPassword) {
+            return this.jwtService.signJWT(email, process.env.SECRET);
+        } else return false;
     }
 }

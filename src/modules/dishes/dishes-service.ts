@@ -3,7 +3,7 @@ import type { RowDataPacket } from 'mysql2/promise';
 import { DatabaseError } from '../../errors/database-error';
 import type { NextFunction, Request, Response } from 'express';
 import { BadRequestError } from '../../errors/bad-request-error';
-import { checkCorrectnessOfBody } from '../../utils/checkCorrectnessOfBody';
+import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
 
 interface IDishId extends RowDataPacket {
     dish_id: number;
