@@ -1,4 +1,4 @@
-import { BadRequestError } from '../errors/bad-request-error';
+import { BadRequestError } from '../errors/bad-request-error.js';
 
 export function checkCorrectnessOfBody(body: object, requiredParams: string[]) {
     let requiredParamsCount = 0;

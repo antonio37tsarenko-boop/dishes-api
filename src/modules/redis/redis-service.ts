@@ -7,6 +7,9 @@ export class RedisService {
             host: 'localhost',
             port: process.env.REDIS_PORT,
         });
+        this.redis.on('ready', () => {
+            console.log('Redis is on.');
+        });
     }
     async saveUserData(
         email: string,

@@ -1,7 +1,7 @@
-import { BasicController } from '../../common/basic-controller/basic-controller';
-import type { UsersService } from './users-service';
+import { BasicController } from '../../common/basic-controller/basic-controller.js';
+import type { UsersService } from './users-service.js';
 import type { Request, Response, NextFunction } from 'express';
-import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
+import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body.js';
 
 export class UsersController extends BasicController {
     usersService: UsersService;
@@ -23,6 +23,7 @@ export class UsersController extends BasicController {
     async deleteUser(req: Request, res: Response, next: NextFunction) {
         const body = req.body;
         checkCorrectnessOfBody(body, ['email']);
-        await this.usersService.deleteUser(body.email);
+        const result = await this.usersService.deleteUser(body.email);
+        res.send(result);
     }
 }

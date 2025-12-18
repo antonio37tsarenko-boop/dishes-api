@@ -1,10 +1,9 @@
 import mysql from 'mysql2/promise';
 import type { RowDataPacket } from 'mysql2/promise';
-import { DatabaseError } from '../../errors/database-error';
-import type { NextFunction, Request, Response } from 'express';
-import { BadRequestError } from '../../errors/bad-request-error';
-import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
-import type { DatabaseService } from '../database/database-service';
+import { DatabaseError } from '../../errors/database-error.js';
+import { BadRequestError } from '../../errors/bad-request-error.js';
+import type { DatabaseService } from '../database/database-service.js';
+import QueryString from 'qs';
 
 interface IDishId extends RowDataPacket {
     dish_id: number;
@@ -97,37 +96,21 @@ export class DishesService {
         this.dishID = undefined;
     }
 
-    async addDish(req: Request, res: Response, next: NextFunction) {
-        const body = req.body;
-        checkCorrectnessOfBody(body, [
-            'name',
-            'area',
-            'category',
-            'ingredients',
-            'instructionText',
-            'youtubeUrl',
-        ]);
-        const {
-            name,
-            area,
-            category,
-            ingredients,
-            instructionText,
-            youtubeUrl,
-        } = body;
+    async addDish(
+        name: string,
+        area: string,
+        category: string,
+        youtubeUrl: string,
+        ingredients: string[],
+        instructionText: string,
+    ) {
         await this.insertIntoDishes(name, area, category, youtubeUrl);
         await this.insertIntoIngredients_list(ingredients);
         await this.insertIntoInstructions(instructionText);
     }
 
-    async getDishByName(req: Request, res: Response, next: NextFunction) {
-        const dishName = req.query.name;
-        if (typeof dishName == 'undefined') {
-            throw new BadRequestError(
-                'required parameter name is not transferred.',
-            );
-        }
-        return this.connection.query(
+    async getDishByName(dishName: string) {
+        const [rows] = await this.connection.query(
             `
     SELECT *
     FROM dishes
@@ -135,39 +118,49 @@ export class DishesService {
   `,
             [dishName],
         );
+        console.log(rows);
+        return rows;
     }
 
     async primaryGetDishDetails(type: `name` | `dish_id`, value: string) {
-        return this.connection.query(
+        const [rows] = await this.connection.query(
             `
-    SELECT *
-    FROM DISHES
+                SELECT *
+                FROM dishes
       
-        JOIN ingredients_list il
-          ON dish_id = il.list_id
+                JOIN ingredients_list
+                    ON dish_id = ingredients_list.list_id
       
-        JOIN instructions i
-          ON dish_id = i.instruction_id
+                JOIN instructions
+                    ON dish_id = instructions.instruction_id
     
-    WHERE ? = ?
+                WHERE dishes.?? = ?
   `,
             [type, value],
         );
+        return rows;
     }
 
-    async getDishDetails(req: Request, res: Response, next: NextFunction) {
-        const name = req.query.name;
-        const id = req.query.id;
+    async getDishDetails(
+        name:
+            | string
+            | QueryString.ParsedQs
+            | (string | QueryString.ParsedQs)[]
+            | undefined,
+        id:
+            | string
+            | QueryString.ParsedQs
+            | (string | QueryString.ParsedQs)[]
+            | undefined,
+    ) {
         if (name && id) {
             throw new BadRequestError(
                 'name and id are transferred in one request when only one of them is required.',
             );
         } else if (typeof name !== 'undefined') {
-            res.json(await this.primaryGetDishDetails('name', name.toString()));
+            return this.primaryGetDishDetails('name', name.toString());
         } else if (typeof id !== 'undefined') {
-            res.json(
-                await this.primaryGetDishDetails('dish_id', id.toString()),
-            );
+            return this.primaryGetDishDetails('dish_id', id.toString());
         } else {
             throw new BadRequestError(
                 'name and id are not transferred when one of them is required.',

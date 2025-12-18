@@ -2,9 +2,8 @@ import mysql, {
     type ResultSetHeader,
     type RowDataPacket,
 } from 'mysql2/promise';
-import { DatabaseError } from '../../errors/database-error';
-import type { Request, Response, NextFunction } from 'express';
-import type { DatabaseService } from '../database/database-service';
+import { DatabaseError } from '../../errors/database-error.js';
+import type { DatabaseService } from '../database/database-service.js';
 
 interface IHashedPasswordRow extends RowDataPacket {
     hashed_password: string;

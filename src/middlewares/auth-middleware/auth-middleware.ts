@@ -22,11 +22,10 @@ export class AuthMiddleware implements IMiddleware {
                         typeof payload !== 'string'
                     ) {
                         req.user.email = payload.email;
-                        next();
                     }
                 },
             );
-            next();
         }
+        next();
     }
 }

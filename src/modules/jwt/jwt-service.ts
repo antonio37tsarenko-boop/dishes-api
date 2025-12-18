@@ -6,7 +6,7 @@ export class JwtService {
             jwt.sign(
                 {
                     email,
-                    iot: Math.floor(Date.now() / 1000),
+                    iat: Math.floor(Date.now() / 1000),
                 },
                 secret,
                 {

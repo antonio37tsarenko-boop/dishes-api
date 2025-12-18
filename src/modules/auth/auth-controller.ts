@@ -1,7 +1,7 @@
-import type { AuthService } from './auth-service';
-import { BasicController } from '../../common/basic-controller/basic-controller';
+import type { AuthService } from './auth-service.js';
+import { BasicController } from '../../common/basic-controller/basic-controller.js';
 import type { Request, Response, NextFunction } from 'express';
-import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body';
+import { checkCorrectnessOfBody } from '../../utils/check-correctness-of-body.js';
 
 export class AuthController extends BasicController {
     authService: AuthService;
@@ -41,6 +41,7 @@ export class AuthController extends BasicController {
 
     async sendOTP(req: Request, res: Response, next: NextFunction) {
         const body = req.body;
+
         checkCorrectnessOfBody(body, [
             'email',
             'password',
@@ -48,15 +49,18 @@ export class AuthController extends BasicController {
             'lastName',
         ]);
         const { email, password, firstName, lastName } = body;
-
         await this.authService.sendOTP(email, password, firstName, lastName);
+
+        res.send(true);
     }
 
     async verifyOTP(req: Request, res: Response, next: NextFunction) {
+        console.log('verifyOTP is working!');
         const body = req.body;
         checkCorrectnessOfBody(body, ['email', 'OTP']);
         const { email, OTP } = body;
-        const result = await this.authService.verifyOTP(email, OTP);
+        console.log(email, OTP);
+        const result = await this.authService.verifyOTP(email, Number(OTP));
         res.send(result);
     }
 }

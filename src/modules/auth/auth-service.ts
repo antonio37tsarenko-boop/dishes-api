@@ -1,9 +1,10 @@
-import type { Hasher } from '../../security/hasher';
-import type { RedisService } from '../redis/redis-service';
-import { UsersService } from '../users/users-service';
-import type { JwtService } from '../jwt/jwt-service';
-import type { MailService } from '../mail/mail-service';
-import type { OtpService } from '../otp/otp-service';
+import type { Hasher } from '../../security/hasher.js';
+import type { RedisService } from '../redis/redis-service.js';
+import { UsersService } from '../users/users-service.js';
+import type { JwtService } from '../jwt/jwt-service.js';
+import type { MailService } from '../mail/mail-service.js';
+import type { OtpService } from '../otp/otp-service.js';
+import * as bcrypt from 'bcrypt';
 
 export class AuthService {
     redisService: RedisService;
@@ -12,6 +13,22 @@ export class AuthService {
     usersService: UsersService;
     mailService: MailService;
     otpService: OtpService;
+
+    constructor(
+        redisService: RedisService,
+        hasher: Hasher,
+        jwtService: JwtService,
+        usersService: UsersService,
+        mailService: MailService,
+        otpService: OtpService,
+    ) {
+        this.redisService = redisService;
+        this.hasher = hasher;
+        this.jwtService = jwtService;
+        this.usersService = usersService;
+        this.mailService = mailService;
+        this.otpService = otpService;
+    }
 
     async verifyOTP(email: string, OTP: number) {
         const data = await this.redisService.getAllHash(`verify:${email}`);
@@ -39,7 +56,7 @@ export class AuthService {
         lastName: string,
     ) {
         const OTP = this.otpService.generateOTP();
-        const hashedPassword = this.hasher.hashPassword(password);
+        const hashedPassword = await this.hasher.hashPassword(password);
         await this.redisService.saveUserData(
             email,
             hashedPassword,
@@ -51,10 +68,17 @@ export class AuthService {
     }
 
     async login(email: string, password: string) {
-        const hashedPassword = this.hasher.hashPassword(password);
         const truthfulHashedPassword =
             await this.usersService.getHashedPassword(email);
-        if (truthfulHashedPassword.hashed_password === hashedPassword) {
+        console.log(truthfulHashedPassword);
+        console.log(password);
+        console.log(this.hasher.hashPassword(password));
+        if (
+            await bcrypt.compare(
+                password,
+                truthfulHashedPassword.hashed_password,
+            )
+        ) {
             return this.jwtService.signJWT(email, process.env.SECRET);
         } else return false;
     }
