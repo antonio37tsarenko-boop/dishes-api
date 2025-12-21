@@ -2,12 +2,12 @@ import { createTransport, type Transporter } from 'nodemailer';
 
 export class MailService {
     transport: Transporter;
-    constructor() {
+    constructor(user: string, password: string) {
         this.transport = createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.MAIL_PASS,
+                user: user,
+                pass: password,
             },
         });
     }

@@ -1,12 +1,24 @@
-import mysql from 'mysql2/promise';
+import mysql, { type ResultSetHeader } from 'mysql2/promise';
 import type { RowDataPacket } from 'mysql2/promise';
-import { DatabaseError } from '../../errors/database-error.js';
 import { BadRequestError } from '../../errors/bad-request-error.js';
 import type { DatabaseService } from '../database/database-service.js';
 import QueryString from 'qs';
+import { ServerError } from '../../errors/server-error.js';
 
 interface IDishId extends RowDataPacket {
     dish_id: number;
+}
+
+interface IDishInfo extends RowDataPacket {
+    dish_id: number;
+    name: string;
+    area: string;
+    category: string;
+    youtubeUrl?: string;
+}
+
+interface IUserId extends RowDataPacket {
+    user_id: number;
 }
 
 export class DishesService {
@@ -17,6 +29,34 @@ export class DishesService {
     constructor(databaseService: DatabaseService) {
         this.databaseService = databaseService;
         this.connection = this.databaseService.connection;
+    }
+
+    private async getUserIdByEmail(email: string) {
+        const [result] = await this.connection.query<IUserId[]>(
+            `
+            SELECT user_id
+            FROM users
+            WHERE email = ?
+        `,
+            [email],
+        );
+        if (result[0]) {
+            return result[0].user_id;
+        } else throw new Error(`User with email ${email} doesn\'t exist.`);
+    }
+
+    private async getDishIdByName(dishName: string) {
+        const [result] = await this.connection.query<IDishId[]>(
+            `
+    SELECT dish_id
+    FROM dishes
+    WHERE name = ?
+    `,
+            [dishName],
+        );
+        if (result[0]) {
+            return result[0].dish_id;
+        } else return false;
     }
 
     private async insertIntoDishes(
@@ -39,23 +79,11 @@ export class DishesService {
             [name, area, category, youtubeUrl],
         );
 
-        const [results] = await this.connection.query<IDishId[]>(
-            `
-    SELECT dish_id
-    FROM dishes
-    WHERE name = ?
-    `,
-            [name],
-        );
+        const dishID = await this.getDishIdByName(name);
 
-        if (!results[0]) {
-            throw new DatabaseError(
-                "Server error: new row wasn't created",
-                500,
-            );
-        }
-        this.dishID = results[0].dish_id;
-        console.log(results);
+        if (dishID) {
+            this.dishID = dishID;
+        } else throw new ServerError("Dish isn't added.");
     }
 
     private async insertIntoIngredients_list(ingredients: string[]) {
@@ -123,7 +151,7 @@ export class DishesService {
     }
 
     async primaryGetDishDetails(type: `name` | `dish_id`, value: string) {
-        const [rows] = await this.connection.query(
+        const [rows] = await this.connection.query<IDishInfo[]>(
             `
                 SELECT *
                 FROM dishes
@@ -138,7 +166,10 @@ export class DishesService {
   `,
             [type, value],
         );
-        return rows;
+
+        if (rows[0]) {
+            return rows[0];
+        }
     }
 
     async getDishDetails(
@@ -166,5 +197,25 @@ export class DishesService {
                 'name and id are not transferred when one of them is required.',
             );
         }
+    }
+
+    async addDishInLiked(dishName: string, userEmail: string) {
+        const userID = await this.getUserIdByEmail(userEmail);
+        const dishID = await this.getDishIdByName(dishName);
+
+        const [result] = await this.connection.query<ResultSetHeader>(
+            `
+            INSERT INTO liked_dishes
+            VALUES (
+                    ?,
+                    ?
+                   )
+        `,
+            [userID, dishID],
+        );
+        if (result.affectedRows === 0) {
+            return false;
+        }
+        return true;
     }
 }

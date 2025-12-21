@@ -2,7 +2,6 @@ import mysql, {
     type ResultSetHeader,
     type RowDataPacket,
 } from 'mysql2/promise';
-import { DatabaseError } from '../../errors/database-error.js';
 import type { DatabaseService } from '../database/database-service.js';
 
 interface IHashedPasswordRow extends RowDataPacket {
@@ -38,7 +37,9 @@ export class UsersService {
         );
     }
 
-    async getHashedPassword(email: string): Promise<IHashedPasswordRow> {
+    async getHashedPassword(
+        email: string,
+    ): Promise<IHashedPasswordRow | undefined> {
         const [result] = await this.connection.execute<IHashedPasswordRow[]>(
             `
             SELECT hashed_password
@@ -47,12 +48,12 @@ export class UsersService {
         `,
             [email],
         );
-        if (!result[0]) {
-            throw new DatabaseError(
-                `User with email ${email} doesn\'t exists`,
-                404,
-            );
-        }
+        // if (!result[0]) {
+        //     throw new DatabaseError(
+        //         `User with email ${email} doesn\'t exists`,
+        //         404,
+        //     );
+        // }
         return result[0];
     }
 
@@ -65,5 +66,17 @@ export class UsersService {
             [email],
         );
         return result.affectedRows == 1;
+    }
+
+    async assignAdmin(email: string) {
+        const [result] = await this.connection.query<ResultSetHeader>(
+            `
+            UPDATE users
+            SET is_admin = true
+            WHERE email = ?
+        `,
+            [email],
+        );
+        return result.affectedRows === 1;
     }
 }

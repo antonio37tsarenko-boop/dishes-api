@@ -2,10 +2,10 @@ import { Redis } from 'ioredis';
 
 export class RedisService {
     redis: Redis;
-    constructor() {
+    constructor(port: string) {
         this.redis = new Redis({
             host: 'localhost',
-            port: process.env.REDIS_PORT,
+            port: Number(port),
         });
         this.redis.on('ready', () => {
             console.log('Redis is on.');

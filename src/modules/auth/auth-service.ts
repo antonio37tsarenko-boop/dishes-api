@@ -13,6 +13,7 @@ export class AuthService {
     usersService: UsersService;
     mailService: MailService;
     otpService: OtpService;
+    secret: string;
 
     constructor(
         redisService: RedisService,
@@ -21,6 +22,7 @@ export class AuthService {
         usersService: UsersService,
         mailService: MailService,
         otpService: OtpService,
+        secret: string,
     ) {
         this.redisService = redisService;
         this.hasher = hasher;
@@ -28,6 +30,7 @@ export class AuthService {
         this.usersService = usersService;
         this.mailService = mailService;
         this.otpService = otpService;
+        this.secret = secret;
     }
 
     async verifyOTP(email: string, OTP: number) {
@@ -45,7 +48,7 @@ export class AuthService {
                 data.lastName,
             );
             await this.redisService.deleteKey(`verify:${email}`);
-            return this.jwtService.signJWT(email, process.env.SECRET);
+            return this.jwtService.signJWT(email, this.secret);
         } else return false;
     }
 
@@ -62,7 +65,7 @@ export class AuthService {
             hashedPassword,
             firstName,
             lastName,
-            Number(OTP),
+            +OTP,
         );
         await this.mailService.sendOTPMail(OTP, email, 'Your OTP');
     }
@@ -70,9 +73,9 @@ export class AuthService {
     async login(email: string, password: string) {
         const truthfulHashedPassword =
             await this.usersService.getHashedPassword(email);
-        console.log(truthfulHashedPassword);
-        console.log(password);
-        console.log(this.hasher.hashPassword(password));
+        if (!truthfulHashedPassword) {
+            throw new Error("User doesn't exist.");
+        }
         if (
             await bcrypt.compare(
                 password,

@@ -16,7 +16,7 @@
     "removeComments": true,
     "esModuleInterop": true,
     // For nodejs:
-     "lib": ["esnext"],
+    // "lib": ["esnext"],
     // "types": ["node"],
     // and npm install -D @types/node
 
@@ -45,6 +45,6 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   }
 }

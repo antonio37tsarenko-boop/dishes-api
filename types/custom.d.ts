@@ -1,5 +1,6 @@
 interface User {
-    email: string;
+    email: string | undefined;
+    isAdmin: boolean;
 }
 
 declare namespace Express {
