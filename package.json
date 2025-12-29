@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "start": "tsc && pm2 restart ./dist/index.js",
     "dev": "nodemon"
   },
