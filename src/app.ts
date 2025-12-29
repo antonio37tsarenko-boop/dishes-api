@@ -58,6 +58,6 @@ export class App {
         this.useMiddlewares();
         this.bindAllRoutes();
         this.app.listen(Number(this.port));
-        console.log(`server is running on port ${this.port}`);
+        console.log(`serer is running on port ${this.port}`);
     }
 }

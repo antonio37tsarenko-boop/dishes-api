@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { IRoute } from './route-interface.js';
 
-export class BasicController {
+export abstract class BasicController {
     router: Router;
 
     constructor() {

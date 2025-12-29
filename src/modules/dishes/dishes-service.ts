@@ -21,6 +21,12 @@ interface IUserId extends RowDataPacket {
     user_id: number;
 }
 
+interface IFilters {
+    area?: string;
+    category?: string;
+    ingredients: string[];
+}
+
 export class DishesService {
     databaseService: DatabaseService;
     connection: mysql.Connection;
@@ -213,9 +219,6 @@ export class DishesService {
         `,
             [userID, dishID],
         );
-        if (result.affectedRows === 0) {
-            return false;
-        }
-        return true;
+        return result.affectedRows === 1;
     }
 }

@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env') }); // only once
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 import { App } from './app.js';
 import { UsersController } from './modules/users/users-controller.js';
 import { UsersService } from './modules/users/users-service.js';
@@ -42,7 +42,7 @@ async function bootstrap() {
         process.env.MAIL_USER,
         process.env.MAIL_PASS,
     );
-    const otpService = new OtpService();
+   const otpService = new OtpService();
     const authService = new AuthService(
         redisService,
         hasher,
