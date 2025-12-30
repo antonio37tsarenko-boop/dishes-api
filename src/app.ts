@@ -5,6 +5,7 @@ import { AuthMiddleware } from './middlewares/auth-middleware/auth-middleware.js
 import express, { type Express } from 'express';
 import type { AuthController } from './modules/auth/auth-controller.js';
 import type { IsAdminMiddleware } from './middlewares/is-admin-middleware.js';
+import type { Request, Response, NextFunction } from 'express';
 
 export class App {
     app: Express;
@@ -52,6 +53,10 @@ export class App {
 
         this.usersController.bindUsersRoutes();
         this.app.use('/users', this.usersController.router);
+
+        this.app.use('/', (req: Request, res: Response, next: NextFunction) => {
+            res.send('API is working');
+        });
     }
 
     async init() {
